@@ -14,7 +14,7 @@ class enemigos:
         c=(yp>=ym and yp<=ym+h and xp+h>xm and xp+h <xm+h or(yp+h>ym and yp+h <=ym+h and xp+h>=xm and xp+h<=xm+h) )
         if(a or b or c):
             if(Comb is GAS) :  
-                if(Canvas.coords(item1)[0]<250):
+                if(Canvas.coords(item1)[0]<225):
                     Canvas.move(item1,-push,0)
                     Comb-=3500
                 else:
@@ -22,7 +22,7 @@ class enemigos:
                     Comb-=3500
                 if(item2==misil1 or item2 ==misil2):
                     Comb=0
-                if(item2==gasolina or item2==gasolina2):
+                elif(item2==gasolina or item2==gasolina2):
                     Comb+=5000
                     if(item2==gasolina):
                         Canvas.move(gasolina,0,-900)
@@ -30,7 +30,7 @@ class enemigos:
                         Canvas.move(gasolina2,0,-900)
                     GAS=Comb
             else:
-                    if(Canvas.coords(item1)[0]<650):
+                    if(Canvas.coords(item1)[0]<675):
                         Canvas.move(item1,-push,0)
                         Comb-=3500
                     else:
@@ -193,31 +193,24 @@ sini22=Canvas.create_image(250,-150,image=enemigo5)
 e = tkinter.Entry(menu)
 f = tkinter.Entry(menu)
 wind.iconify()
-
 lista =[mini,runner,sini,fight,sini2,misil1,misil2,gasolina,gasolina2]
 lista2 =[mini2,runner2,sini12,fight2,sini22,misil12,misil22,gasolina12,gasolina22]
-
-
-
 def limit(listid,li,b,c,pl):
     global GAS,GAS2
     mons.limite_Y( li[listid],900)
     mons.limite_X(li[listid],b,c,GAS)
     if(pl==player):
-        mons.collisions(pl,li[listid],15,GAS)
+        mons.collisions(pl,li[listid],35,GAS)
         mons.limite_X(li[listid],b,c,GAS)
     elif(pl==player2):
-        mons.collisions(pl,li[listid],15,GAS2)
+        mons.collisions(pl,li[listid],35,GAS2)
         mons.limite_X(li[listid],b,c,GAS2)
-
-
 def main():
     global GAS,distancia,levelid,Save,GAS2,m1,m2,X2
     distancia+=10
     z = "level:  "+str(levelid+1)+"\n energy1: "+str(GAS)+"\n energy2:"+str(GAS2)+"\ndistance: "+str(distancia)+"\nplayer:\n "+e.get()+"\n"+f.get()+"\nSpace Fighters™\n"
     a.set(z)
     mons.runner( lista[1],minivanvel[levelid]*1.3)
-    
     limit(1,lista,0,450,player)
     mons.sin( lista[2],100,minivanvel[levelid]*1.8)
     limit(2,lista,0,450,player)
