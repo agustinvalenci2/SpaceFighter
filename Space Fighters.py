@@ -1,36 +1,50 @@
 import tkinter,math,random
-
-wind = tkinter.Tk() 
+wind = tkinter.Tk()
+wind.config(bg="black")
 menu = tkinter.Toplevel(bg="black",relief="flat")
-(distancia,levelid,GAS,GAS2)=(0,0,15000,15000)
-(minivanvel,fightvel,h,m) = ([0.5,2,3,4,5,8],[1,2,5,7,15,25],[],[])
+(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2) = ([1,2,3,4,5,8],[1,2,5,7,15,25],[],[],[],0,0,35000,35000,1,1)
 Save = open("save.txt","r+")
 class enemigos:
     def collisions(self, item1,item2,push,Comb):
+        global GAS,GAS2
         h=40
         (xp,yp,xm,ym) =(Canvas.coords(item1)[0]-(h/2),Canvas.coords(item1)[1]-(h/2),Canvas.coords(item2)[0]-(h/2),Canvas.coords(item2)[1]-(h/2))
         a= (xp>=xm and xp<=xm+h and yp>=ym and yp<=ym+h or(xp+h>=xm and xp+h<=xm+h and yp>=ym and yp<=ym+h))
         b=(yp>=ym and yp<=ym+h and xp>xm and xp <xm+h or(yp+h>ym and yp+h <=ym+h and xp>=xm and xp<=xm) )
         c=(yp>=ym and yp<=ym+h and xp+h>xm and xp+h <xm+h or(yp+h>ym and yp+h <=ym+h and xp+h>=xm and xp+h<=xm+h) )
         if(a or b or c):
-            if(Canvas.coords(item1)[0]<250):
-                Canvas.move(item1,-push,0)
-            else:
-                Canvas.move(item1,push,0)
-                Comb-=3500
-            if(item2==misil1 or item2 ==misil2 or item2==misil12 or item2 ==misil22):
-                Comb=0
-            if(item2==gasolina or item2==gasolina2 or item2 ==gasolina12 or item2 ==gasolina22):
-                Comb+=5000
-                if(item2==gasolina):
-                    Canvas.move(gasolina,0,-900)
-                elif(item2==gasolina2):
-                    Canvas.move(gasolina2,0,-900)
-                elif(item2==gasolina12):
-                    Canvas.move(gasolina12,0,-900)
-                elif(item2==gasolina22):
-                    Canvas.move(gasolina22,0,-900)
-              
+            if(Comb is GAS) :  
+                if(Canvas.coords(item1)[0]<250):
+                    Canvas.move(item1,-push,0)
+                    Comb-=3500
+                else:
+                    Canvas.move(item1,push,0)
+                    Comb-=3500
+                if(item2==misil1 or item2 ==misil2):
+                    Comb=0
+                if(item2==gasolina or item2==gasolina2):
+                    Comb+=5000
+                    if(item2==gasolina):
+                        Canvas.move(gasolina,0,-900)
+                    elif(item2==gasolina2):
+                        Canvas.move(gasolina2,0,-900)
+                    GAS=Comb
+                else:
+                    if(Canvas.coords(item1)[0]<250):
+                        Canvas.move(item1,-push,0)
+                        Comb-=3500
+                    else:
+                        Canvas.move(item1,push,0)
+                        Comb-=3500
+                    if( item2==misil12 or item2 ==misil22):
+                        Comb=0
+                    if(item2 ==gasolina12 or item2 ==gasolina22):
+                        Comb+=5000
+                        if(item2==gasolina12):
+                            Canvas.move(gasolina12,0,-900)
+                        elif(item2==gasolina22):
+                            Canvas.move(gasolina22,0,-900)
+                    GAS2=Comb
     def minivan(self,item,v):
         """
         """
@@ -71,17 +85,17 @@ class enemigos:
             if(item==player2):
                  GAS2-=3000
 def reload():
-    global levelid,GAS,distancia
+    global levelid,GAS,distancia,GAS2
     levelid=int(m[0])-1
     GAS=int(m[1])
     distancia=int(m[2])
+    GAS2= int(m[4])
     menu.wm_iconify()
     wind.wm_deiconify()
     Canvas.focus_set()
     label.pack(side = tkinter.RIGHT)
     Canvas.pack()
     main()
-
 def boton(item,x,y):
         h=50
         if(CC.coords(item)[0]<x and CC.coords(item)[0]+h>x and CC.coords(item)[1]<y and CC.coords(item)[1]+h>y):
@@ -89,14 +103,12 @@ def boton(item,x,y):
         else:
             return False
 def nivel(Id):
-       
        global levelid,m
        m=[]
        if(Id==5):
            for v in range(9):
                x=Save.readline()
                x.split()
-               
                m.append(x)
                x.split("\n")
            reload()
@@ -109,7 +121,6 @@ def nivel(Id):
            Canvas.pack()
            main()
 def nivelselec(event):
-    
     global levelid
     menu.focus_set()
     botones =[boton1,boton2,boton3,boton4,boton5,boton6]
@@ -134,11 +145,11 @@ def key():
     Canvas.move(player,5,0)
   if(76 in h):
     Canvas.move(player2,5,0)
-  if(83 in h):
+  if(83 in h or 75 in h):
         Save.seek(0)
-        score= str(levelid+1)+" \n"+str(GAS)+" \n"+str(distancia)+" \n"+e.get()
+        score= str(levelid+1)+" \n"+str(GAS)+" \n"+str(distancia)+" \n"+e.get()+" \n"+str(GAS2)+" \n"+f.get()
         Save.write(score)        
-mons = enemigos()       
+mons = enemigos()
 Canvas = tkinter.Canvas(wind,height=900,width=900,bg="black")
 Canvas.create_line(450,0,450,900,fill="white",dash=30)
 Canvas.bind("<KeyPress>",keydown)
@@ -154,6 +165,10 @@ space = tkinter.PhotoImage(file="space fighters.png")
 fondo= tkinter.PhotoImage(file="fondo.png")
 gas= tkinter.PhotoImage(file="gas.png")
 BOOM = tkinter.PhotoImage(file="Bomb_Explosion.png")
+for l in range(100):
+    m=math.sin(l*math.pi/80)*100
+    a=Canvas.create_oval(10+10*l,10+10*m,20+10*l,20+10*m,fill="white")
+    X2.append(a)
 gasolina=Canvas.create_image(150,-100,image=gas)
 gasolina2=Canvas.create_image(150,-100,image=gas)
 mini=Canvas.create_image(350,-150,image=enemigo1)
@@ -180,9 +195,9 @@ wind.iconify()
 
 lista =[mini,runner,sini,fight,sini2,misil1,misil2,gasolina,gasolina2]
 lista2 =[mini2,runner2,sini12,fight2,sini22,misil12,misil22,gasolina12,gasolina22]
-for l in range(200):
-    m=math.tan(l*2*math.pi/50-100)*150
-    Canvas.create_oval(10+10*l,10+10*m,20+10*l,20+10*m,fill="white")
+
+
+
 def limit(listid,li,b,c,pl):
     global GAS,GAS2
     mons.limite_Y( li[listid],900)
@@ -193,14 +208,15 @@ def limit(listid,li,b,c,pl):
     elif(pl==player2):
         mons.collisions(pl,li[listid],15,GAS2)
         mons.limite_X(li[listid],b,c,GAS2)
-m1=1
-m2=1
+
+
 def main():
-    global GAS,distancia,levelid,Save,GAS2,m1,m2
+    global GAS,distancia,levelid,Save,GAS2,m1,m2,X2
     distancia+=10
     z = "level:  "+str(levelid+1)+"\n energy1: "+str(GAS)+"\n energy2:"+str(GAS2)+"\ndistance: "+str(distancia)+"\nplayer:\n "+e.get()+"\n"+f.get()+"\nSpace Fighters™\n"
     a.set(z)
     mons.runner( lista[1],minivanvel[levelid]*1.3)
+    
     limit(1,lista,0,450,player)
     mons.sin( lista[2],100,minivanvel[levelid]*1.8)
     limit(2,lista,0,450,player)
@@ -236,6 +252,9 @@ def main():
     mons.cos( lista2[4],60,minivanvel[levelid])
     limit(4,lista2,450,900,player2)
     key()
+    for b in range(100):
+        Canvas.move(X2[b],0,5*minivanvel[levelid])
+        mons.limite_Y(X2[b],900)
     if(distancia>30000 and levelid<=4):
         levelid+=1
         distancia=0
