@@ -29,11 +29,12 @@ class enemigos:
                     elif(item2==gasolina2):
                         Canvas.move(gasolina2,0,-900)
                     GAS=Comb
-                else:
-                    if(Canvas.coords(item1)[0]<250):
+            else:
+                    if(Canvas.coords(item1)[0]<650):
                         Canvas.move(item1,-push,0)
                         Comb-=3500
                     else:
+                        
                         Canvas.move(item1,push,0)
                         Comb-=3500
                     if( item2==misil12 or item2 ==misil22):
