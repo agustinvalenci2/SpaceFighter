@@ -1,11 +1,15 @@
-import tkinter,math,random
+import tkinter,math,random,winsound
+from threading import Thread
 wind = tkinter.Tk()
 wind.config(bg="black")
 menu = tkinter.Toplevel(bg="black",relief="flat")
-(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2) = ([1,2,3,4,5,8],[1,2,5,7,15,25],[],[],[],0,0,35000,35000,1,1)
+(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2) = ([0.25,0.5,1,2,3,18],[0.5,2,5,7,15,25],[],[],[],0,0,50000,50000,1,1)
 Save = open("save.txt","r+")
 class enemigos:
     def collisions(self, item1,item2,push):
+        """
+        funcion que detecta las collisiones
+        """
         global GAS,GAS2
         h=40
         (xp,yp,xm,ym) =(Canvas.coords(item1)[0]-(h/2),Canvas.coords(item1)[1]-(h/2),Canvas.coords(item2)[0]-(h/2),Canvas.coords(item2)[1]-(h/2))
@@ -47,9 +51,13 @@ class enemigos:
 
     def minivan(self,item,v):
         """
+        mueve la nave en linea recta sin nmunguncambio de direccion
         """
         Canvas.move(item,0,v)
     def fighter(self,item,item2,dx,dy):
+        """
+        mueve la nave persiguiendo al jugador
+        """
         if(Canvas.coords(item2)[0]<Canvas.coords(item)[0]):
             Canvas.move(item,-dx,dy)
         elif(Canvas.coords(item2)[0]>Canvas.coords(item)[0]):
@@ -57,20 +65,35 @@ class enemigos:
         if(Canvas.coords(item2)[0]==Canvas.coords(item)[0]):
             Canvas.move(item,0,dy)
     def runner(self,item,v):
+        """
+        se mueve aleatroriamente
+        """
         z = random.randint(-10,10)               
         Canvas.move(item,z,v)
     def cos(self,item,f,v):
-        y= math.sin(Canvas.coords(item)[1]*math.pi/(f))*100
+        """
+        va haciendo saltos de lado a lado
+        """
+        y= math.cos(Canvas.coords(item)[1]*math.pi/(f))*100
         Canvas.move(item,y,v)
     def sin(self,item,f,v):
+        """
+        describe  curvas
+        """
         y= math.sin(Canvas.coords(item)[1]*math.pi/f)*v*5
         Canvas.move(item,y,v)
     def limite_Y(self,item,limit):
-        w=random.randint(-200,200)
+        """
+        esta funcion hace que todos las naves aparescan arriba de nuevo
+        """
+        w=random.randint(0,900)
         x=Canvas.coords(item)[0]
         if(Canvas.coords(item)[1]>=limit):
-            Canvas.move(item,-w,-limit)
+            Canvas.move(item,w-x,-limit)
     def limite_X(self,item,izq,der,G):
+        """
+        hace que las naves posean un limite y si el jugador la cruza perdera una cantidad considerable de energia
+        """
         global GAS,GAS2
         if(Canvas.coords(item)[0]>=der):
             Canvas.move(item,-50,0)
@@ -85,8 +108,12 @@ class enemigos:
             if(item==player2):
                  GAS2-=3000
 def reload():
+    """
+    funcion para cargar partida guardada 
+    """
     global levelid,GAS,distancia,GAS2
     levelid=int(m[0])-1
+    play_sound(levelid)
     GAS=int(m[1])
     distancia=int(m[2])
     GAS2= int(m[4])
@@ -97,12 +124,18 @@ def reload():
     Canvas.pack()
     main()
 def boton(item,x,y):
+        """
+        funcion que habilita los botones
+        """
         h=50
         if(CC.coords(item)[0]<x and CC.coords(item)[0]+h>x and CC.coords(item)[1]<y and CC.coords(item)[1]+h>y):
              return True
         else:
             return False
 def nivel(Id):
+       """
+       funcion que carga el nivel
+       """
        global levelid,m
        m=[]
        if(Id==5):
@@ -116,11 +149,15 @@ def nivel(Id):
            menu.wm_iconify()
            wind.wm_deiconify()
            levelid=Id
+           play_sound(Id)
            Canvas.focus_set()
            label.pack(side = tkinter.RIGHT)
            Canvas.pack()
            main()
 def nivelselec(event):
+    """
+    funcion que detecta que nivel selecciono
+    """
     global levelid
     menu.focus_set()
     botones =[boton1,boton2,boton3,boton4,boton5,boton6]
@@ -128,22 +165,31 @@ def nivelselec(event):
         if(boton(botones[x],event.x,event.y)):
                 nivel(x)
 def keyup(e):
+  """
+  funcion de tecla liberada
+  """
   global h
   if(e.keycode in h):
     h.pop(h.index(e.keycode))
 def keydown(e):
+  """
+  funcion tecla presionada
+  """
   global h
-  if not e.keycode in h:
+  if( not e.keycode in h):
     h.append(e.keycode)
 def key():
-  global h
-  if(65 in h):
+  """
+  funcion que hace que la nave del jugador se mueva
+  """
+  global h,m1,m2
+  if(65 in h and m1==1):
     Canvas.move(player,-5,0)
-  if(74 in h):
+  if(74 in h and m2==1):
     Canvas.move(player2,-5,0)
-  if(68 in h):
+  if(68 in h and m1==1):
     Canvas.move(player,5,0)
-  if(76 in h):
+  if(76 in h and m2==1):
     Canvas.move(player2,5,0)
   if(83 in h or 75 in h):
         Save.seek(0)
@@ -195,6 +241,9 @@ wind.iconify()
 lista =[mini,runner,sini,fight,sini2,misil1,misil2,gasolina,gasolina2]
 lista2 =[mini2,runner2,sini12,fight2,sini22,misil12,misil22,gasolina12,gasolina22]
 def limit(listid,li,b,c,pl):
+    """
+    esta funcion llama las collisions y los limites de los jugadores
+    """
     global GAS,GAS2
     mons.limite_Y( li[listid],900)
     mons.limite_X(li[listid],b,c,GAS)
@@ -204,9 +253,12 @@ def limit(listid,li,b,c,pl):
     elif(pl==player2):
         mons.collisions(pl,li[listid],35)
         mons.limite_X(li[listid],b,c,GAS2)
+
 def main():
- 
-    global GAS,distancia,levelid,Save,GAS2,m1,m2,X2
+    """
+    funcion la cual llama a todas las demas y donde est a la recursion 
+    """
+    global GAS,distancia,levelid,Save,GAS2,m1,m2,X2,U
     distancia+=10
     z = "level:  "+str(levelid+1)+"\n energy1: "+str(GAS)+"\n energy2:"+str(GAS2)+"\ndistance: "+str(distancia)+"\nplayer:\n "+e.get()+"\n"+f.get()+"\nSpace Fighters™\n"
     a.set(z)
@@ -252,6 +304,8 @@ def main():
     if(distancia>30000 and levelid<=4):
         levelid+=1
         distancia=0
+
+        
     if(levelid==5 and distancia>9000):
         return 0
     if(m1==2):
@@ -275,6 +329,22 @@ def main():
         return 0
         Save.close()
     Canvas.after(5,main)
+def sonido(lvl):
+    global WW
+    if(lvl==0):
+        WW= winsound.PlaySound("nvl1.wav",1)
+    elif(lvl==1):
+       WW= winsound.PlaySound("nvl2.wav",1)
+    elif(lvl==2):
+        WW=winsound.PlaySound("nvl3.wav",1)
+    elif(lvl==3):
+        WW=winsound.PlaySound("nvl4.wav",1)
+    elif(lvl==4):
+        WW=winsound.PlaySound("nvl5.wav",1)
+    
+def play_sound(lvl):
+    pl = Thread(target=sonido,  args=[lvl])
+    pl.start()
 CC = tkinter.Canvas(menu,height=400,width=400,bg="black",relief="groove")
 CC.bind("<Button-1>",nivelselec)
 ff=CC.create_image(200,200,image=fondo)
