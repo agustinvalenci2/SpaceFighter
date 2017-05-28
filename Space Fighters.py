@@ -3,7 +3,7 @@ from threading import Thread
 wind = tkinter.Tk()
 wind.config(bg="black")
 menu = tkinter.Toplevel(bg="black",relief="flat")
-(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2) = ([0.25,0.5,1,2,3,18],[0.5,2,5,7,15,25],[],[],[],0,0,50000,50000,1,1)
+(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2,vel) = ([0.25,0.5,1,2,3,18],[0.5,1,2,3,5,25],[],[],[],0,0,90000,90000,1,1,0)
 Save = open("save.txt","r+")
 class enemigos:
     def collisions(self, item1,item2,push):
@@ -17,43 +17,51 @@ class enemigos:
         b=(yp>=ym and yp<=ym+h and xp>xm and xp <xm+h or(yp+h>ym and yp+h <=ym+h and xp>=xm and xp<=xm) )
         c=(yp>=ym and yp<=ym+h and xp+h>xm and xp+h <xm+h or(yp+h>ym and yp+h <=ym+h and xp+h>=xm and xp+h<=xm+h) )
         if(a or b or c):
-            if(item1 ==player) :  
-                if(Canvas.coords(item1)[0]<225):
+            if(item1 ==player) :
+                if(item2 ==gasolina or item2 ==gasolina2):
+                        GAS+=15000
+                        if(item2==gasolina):
+                            Canvas.move(gasolina,0,-900)
+                        elif(item2==gasolina2):
+                            Canvas.move(gasolina2,0,-900)
+                elif(Canvas.coords(item1)[0]<225):
                     Canvas.move(item1,-push,0)
-                    GAS-=500
+                    GAS-=1500
                 else:
                     Canvas.move(item1,push,0)
-                    GAS-=500
-                if(item2==misil1 or item2 ==misil2):
-                    Comb=0
-                elif(item2==gasolina or item2==gasolina2):
-                    GAS+=5000
-                    if(item2==gasolina):
+                    GAS-=1500
+                if(item2==gasolina):
                         Canvas.move(gasolina,0,-900)
-                    elif(item2==gasolina2):
+                elif(item2==gasolina2):
                         Canvas.move(gasolina2,0,-900)
+                elif(item2==misil1 or item2 ==misil2):
+                    GAS=0
+                
+                    
           
             else:
                     if(Canvas.coords(item1)[0]<675):
                         Canvas.move(item1,-push,0)
-                        GAS2-=3500
-                    else:
-                        Canvas.move(item1,push,0)
-                        GAS2-=3500
-                    if( item2==misil12 or item2 ==misil22):
-                        GAS2=0
+                        GAS2-=1500
                     if(item2 ==gasolina12 or item2 ==gasolina22):
-                        GAS2+=5000
+                        GAS2+=15000
                         if(item2==gasolina12):
                             Canvas.move(gasolina12,0,-900)
                         elif(item2==gasolina22):
                             Canvas.move(gasolina22,0,-900)
+                    else:
+                        Canvas.move(item1,push,0)
+                        GAS2-=1500
+                    if( item2==misil12 or item2 ==misil22):
+                        GAS2=0
+                    
 
     def minivan(self,item,v):
         """
         mueve la nave en linea recta sin nmunguncambio de direccion
         """
         Canvas.move(item,0,v)
+
     def fighter(self,item,item2,dx,dy):
         """
         mueve la nave persiguiendo al jugador
@@ -63,7 +71,7 @@ class enemigos:
         elif(Canvas.coords(item2)[0]>Canvas.coords(item)[0]):
             Canvas.move(item,dx,dy)
         if(Canvas.coords(item2)[0]==Canvas.coords(item)[0]):
-            Canvas.move(item,0,dy)
+            Canvas.move(item,0,2*dy)
     def runner(self,item,v):
         """
         se mueve aleatroriamente
@@ -98,15 +106,15 @@ class enemigos:
         if(Canvas.coords(item)[0]>=der):
             Canvas.move(item,-50,0)
             if(item==player):
-                GAS-=3000
+                GAS//=2
             if(item==player2):
-                 GAS2-=3000
+                 GAS2//=2
         if(Canvas.coords(item)[0]<=izq):
             Canvas.move(item,50,0)
             if(item==player):
-                GAS-=3000
+                GAS//=2
             if(item==player2):
-                 GAS2-=3000
+                 GAS2//=2
 def reload():
     """
     funcion para cargar partida guardada 
@@ -258,10 +266,11 @@ def main():
     """
     funcion la cual llama a todas las demas y donde est a la recursion 
     """
-    global GAS,distancia,levelid,Save,GAS2,m1,m2,X2,U
+    global GAS,distancia,levelid,Save,GAS2,m1,m2,X2,U,vel
     distancia+=10
     z = "level:  "+str(levelid+1)+"\n energy1: "+str(GAS)+"\n energy2:"+str(GAS2)+"\ndistance: "+str(distancia)+"\nplayer:\n "+e.get()+"\n"+f.get()+"\nSpace Fighters™\n"
     a.set(z)
+    
     mons.runner( lista[1],minivanvel[levelid]*1.3)
     limit(1,lista,0,450,player)
     mons.sin( lista[2],100,minivanvel[levelid]*1.8)
@@ -332,16 +341,15 @@ def main():
 def sonido(lvl):
     global WW
     if(lvl==0):
-        WW= winsound.PlaySound("nvl1.wav",1)
+         winsound.PlaySound("nvl1.wav",1)
     elif(lvl==1):
-       WW= winsound.PlaySound("nvl2.wav",1)
+       winsound.PlaySound("nvl2.wav",1)
     elif(lvl==2):
-        WW=winsound.PlaySound("nvl3.wav",1)
+       winsound.PlaySound("nvl3.wav",1)
     elif(lvl==3):
-        WW=winsound.PlaySound("nvl4.wav",1)
+      winsound.PlaySound("nvl4.wav",1)
     elif(lvl==4):
-        WW=winsound.PlaySound("nvl5.wav",1)
-    
+        winsound.PlaySound("nvl5.wav",1)
 def play_sound(lvl):
     pl = Thread(target=sonido,  args=[lvl])
     pl.start()
