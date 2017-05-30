@@ -1,9 +1,10 @@
 import tkinter,math,random,winsound
 from threading import Thread
+T=False
 wind = tkinter.Tk()
 wind.config(bg="black")
 menu = tkinter.Toplevel(bg="black",relief="flat")
-(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2,vel) = ([0.25,0.5,1,2,3,18],[0.5,1,2,3,5,25],[],[],[],0,0,90000,90000,1,1,0)
+(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2,vel) = ([0.25,0.5,1,2,3,18],[0.5,1,2,3,5,25],[],[],[],0,0,90000,90000,1,1,1)
 Save = open("save.txt","r+")
 class enemigos:
     def collisions(self, item1,item2,push):
@@ -26,10 +27,10 @@ class enemigos:
                             Canvas.move(gasolina2,0,-900)
                 elif(Canvas.coords(item1)[0]<225):
                     Canvas.move(item1,-push,0)
-                    GAS-=1500
+                    GAS-=4500
                 else:
                     Canvas.move(item1,push,0)
-                    GAS-=1500
+                    GAS-=4500
                 if(item2==gasolina):
                         Canvas.move(gasolina,0,-900)
                 elif(item2==gasolina2):
@@ -71,19 +72,21 @@ class enemigos:
         elif(Canvas.coords(item2)[0]>Canvas.coords(item)[0]):
             Canvas.move(item,dx,dy)
         if(Canvas.coords(item2)[0]==Canvas.coords(item)[0]):
-            Canvas.move(item,0,2*dy)
+            Canvas.move(item,0,3*dy)
     def runner(self,item,v):
         """
         se mueve aleatroriamente
         """
-        z = random.randint(-10,10)               
+
+        z = random.randint(-20,20)               
         Canvas.move(item,z,v)
     def cos(self,item,f,v):
+
         """
         va haciendo saltos de lado a lado
         """
-        y= math.cos(Canvas.coords(item)[1]*math.pi/(f))*100
-        Canvas.move(item,y,v)
+        y=1/80*(Canvas.coords(item)[0])
+        Canvas.move(item,v/1.5,y)
     def sin(self,item,f,v):
         """
         describe  curvas
@@ -144,7 +147,7 @@ def nivel(Id):
        """
        funcion que carga el nivel
        """
-       global levelid,m
+       global levelid,m,T
        m=[]
        if(Id==5):
            for v in range(9):
@@ -154,13 +157,14 @@ def nivel(Id):
                x.split("\n")
            reload()
        else:
-           menu.wm_iconify()
-           wind.wm_deiconify()
+           menu.iconify()
+           wind.state('zoomed')
            levelid=Id
            play_sound(Id)
            Canvas.focus_set()
            label.pack(side = tkinter.RIGHT)
            Canvas.pack()
+           T=True
            main()
 def nivelselec(event):
     """
@@ -308,7 +312,7 @@ def main():
     limit(4,lista2,450,900,player2)
     key()
     for b in range(100):
-        Canvas.move(X2[b],0,5*minivanvel[levelid])
+        Canvas.move(X2[b],0,10*minivanvel[levelid])
         mons.limite_Y(X2[b],900)
     if(distancia>30000 and levelid<=4):
         levelid+=1
@@ -316,7 +320,11 @@ def main():
 
         
     if(levelid==5 and distancia>9000):
-        return 0
+        if(Canvas.coords(player)[1]>-50):
+            mons.minivan(player,-10)
+            mons.minivan(player,-10)
+        else:
+           return 0
     if(m1==2):
             GAS=0
     if(m2==2):
@@ -365,11 +373,23 @@ boton6 =CC.create_rectangle(40,350,90,400,fill="Pink")
 anim= CC.create_image(300,300,image=enemigo3)
 anima= CC.create_image(200,200,image=enemigo1)
 animaa= CC.create_image(100,300,image=enemigo4)
+def menu_anim():
+    global vel,T
+    if(T):
+        return 0
+    else:
+        if(CC.coords(anima)[0]>300 or CC.coords(anima)[0]<40):
+            vel*=-1
+        CC.move(animaa,vel,vel)
+        CC.move(anima,vel,0)
+        CC.move(anim,vel,0)
+        CC.after(10,menu_anim)
 title=CC.create_image(150,150,image=space)
 a = tkinter.StringVar()
 label = tkinter.Label(wind,textvariable= a,font=("Times",12,"bold"),fg="white",bg="black")
 e.pack()
 f.pack()
+menu_anim()
 CC.pack()
 wind.mainloop()
 
