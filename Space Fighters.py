@@ -4,7 +4,7 @@ T=False
 wind = tkinter.Tk()
 wind.config(bg="black")
 menu = tkinter.Toplevel(bg="black",relief="flat")
-(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2,vel) = ([0.25,0.5,1,2,3,18],[0.5,1,2,3,5,25],[],[],[],0,0,90000,90000,1,1,1)
+(minivanvel,fightvel,h,m,X2,distancia,levelid,GAS,GAS2,m1,m2,vel,x) = ([0.25,0.5,1,2,3,18],[0.5,1,2,3,5,25],[],[],[],0,0,90000,90000,1,1,9,0)
 Save = open("save.txt","r+")
 class enemigos:
     def collisions(self, item1,item2,push):
@@ -80,13 +80,16 @@ class enemigos:
 
         z = random.randint(-20,20)               
         Canvas.move(item,z,v)
-    def cos(self,item,f,v):
 
+    def cos(self,item,f,v):
+        global x
         """
         va haciendo saltos de lado a lado
         """
-        y=1/80*(Canvas.coords(item)[0])
-        Canvas.move(item,v/1.5,y)
+        x+=.01
+        Canvas.move(item,3*math.cos(x),3*math.sin(x))
+        Canvas.move(item,0,v)
+       
     def sin(self,item,f,v):
         """
         describe  curvas
@@ -274,7 +277,6 @@ def main():
     distancia+=10
     z = "level:  "+str(levelid+1)+"\n energy1: "+str(GAS)+"\n energy2:"+str(GAS2)+"\ndistance: "+str(distancia)+"\nplayer:\n "+e.get()+"\n"+f.get()+"\nSpace Fighters™\n"
     a.set(z)
-    
     mons.runner( lista[1],minivanvel[levelid]*1.3)
     limit(1,lista,0,450,player)
     mons.sin( lista[2],100,minivanvel[levelid]*1.8)
@@ -317,8 +319,6 @@ def main():
     if(distancia>30000 and levelid<=4):
         levelid+=1
         distancia=0
-
-        
     if(levelid==5 and distancia>9000):
         if(Canvas.coords(player)[1]>-50):
             mons.minivan(player,-10)
